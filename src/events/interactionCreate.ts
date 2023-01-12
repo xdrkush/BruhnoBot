@@ -5,7 +5,7 @@ import { BotEvent } from "../types";
 
 const event : BotEvent = {
     name: "interactionCreate",
-    execute: (interaction: Interaction) => {
+    execute: async (interaction: Interaction) => {
         if (interaction.isChatInputCommand()) {
             let command = interaction.client.slashCommands.get(interaction.commandName)
             let cooldown = interaction.client.cooldowns.get(`${interaction.commandName}-${interaction.user.username}`)
@@ -24,6 +24,7 @@ const event : BotEvent = {
                 interaction.client.cooldowns.set(`${interaction.commandName}-${interaction.user.username}`, Date.now() + command.cooldown * 1000)
             }
             command.execute(interaction)
+
         } else if (interaction.isAutocomplete()) {
             const command = interaction.client.slashCommands.get(interaction.commandName);
             if (!command) {
@@ -36,6 +37,23 @@ const event : BotEvent = {
             } catch (error) {
                 console.error(error);
             }
+
+        } else if (interaction.isButton()) {
+            try {
+                console.log('interaction isButton', interaction)
+                let command = interaction.client.slashCommands
+                    .get(`${interaction.message.interaction?.commandName}`);
+                    
+                if (!command) return;
+                await command.btn(interaction);
+            
+              } catch (e) {
+                console.error(e);
+                interaction.followUp({
+                  content: e.message,
+                  ephemeral: true
+                });
+              }
         }
     }
 }

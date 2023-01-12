@@ -22,7 +22,8 @@ export interface SlashCommand {
     command: SlashCommandBuilder | any,
     execute: (interaction: CommandInteraction) => void,
     autocomplete?: (interaction: AutocompleteInteraction) => void,
-    cooldown?: number // in seconds
+    cooldown?: number, // in seconds
+    btn?: any
 }
 
 export interface Command {
@@ -31,6 +32,7 @@ export interface Command {
     permissions: Array<PermissionResolvable>,
     aliases: Array<string>,
     cooldown?: number,
+    btn?: any
 }
 
 declare module "discord.js" {
