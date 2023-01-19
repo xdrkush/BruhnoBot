@@ -40,7 +40,7 @@ const event : BotEvent = {
 
         } else if (interaction.isButton()) {
             try {
-                console.log('interaction isButton', interaction)
+                // console.log('interaction isButton', interaction)
                 let command = interaction.client.slashCommands
                     .get(`${interaction.message.interaction?.commandName}`);
                     

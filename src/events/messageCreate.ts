@@ -1,11 +1,17 @@
 
 import { ChannelType, Message } from "discord.js";
 import { BotEvent } from "../types";
-// import { Twitch_Cli } from "../index";
+import { Twitch_Cli } from "../index";
 
 const event: BotEvent = {
     name: "messageCreate",
     execute: async (message: Message) => {
+        if (message.author.bot) return;
+        
+        // Instance Twitch
+        if (message.channelId === process.env.DISCORD_CHANNEL)
+            Twitch_Cli.client.say("hsukrd", `${message.author.tag} > ${message.content}`)
+
         if (!message.member || message.member.user.bot) return;
         if (!message.guild) return;
         let prefix = process.env.PREFIX
@@ -21,10 +27,6 @@ const event: BotEvent = {
             if (commandFromAlias) command = commandFromAlias
             else return;
         }
-
-        // Instance Twitch
-        // if (message.author.bot) return;
-        // Twitch_Cli.client.say("hsukrd",`${message.author.tag} > ${message.content}`)
 
         command.execute(message, args)
     }
