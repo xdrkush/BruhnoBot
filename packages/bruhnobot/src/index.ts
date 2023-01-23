@@ -23,6 +23,6 @@ const Mongo_Cli = new MongoDB()
 Mongo_Cli.run()
 // Mongo_Cli.test() // inject data
 
-export const Server_Cli = new ServerClient()
+export const Server_Cli = new ServerClient(Discord_Cli.client)
 Server_Cli.initConfig()
 Server_Cli.run()
