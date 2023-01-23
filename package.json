@@ -1,27 +1,15 @@
 {
-  "name": "bruhnobot",
+  "name": "ui",
   "version": "1.0.0",
-  "description": "Bot Discord",
-  "main": "src/index.ts",
-  "author": "drkush",
+  "main": "index.js",
   "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts"
-  },
-  "dependencies": {
-    "@discordjs/rest": "^1.5.0",
-    "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3",
-    "openai": "^3.1.0",
-    "tmi.js": "^1.8.5"
-  },
-  "devDependencies": {
-    "@types/node": "^18.11.18",
-    "@types/tmi.js": "^1.8.2",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "bot": "npm run dev --workspace=bruhnobot",
+    "ui": "npm run start --workspace=ui"
   },
   "engines": {
     "node": ">=18.0.0"

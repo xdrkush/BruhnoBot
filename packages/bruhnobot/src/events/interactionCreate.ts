@@ -6,6 +6,7 @@ import { BotEvent } from "../types";
 const event : BotEvent = {
     name: "interactionCreate",
     execute: async (interaction: Interaction) => {
+        console.log('rooot', interaction.type)
         if (interaction.isChatInputCommand()) {
             let command = interaction.client.slashCommands.get(interaction.commandName)
             let cooldown = interaction.client.cooldowns.get(`${interaction.commandName}-${interaction.user.username}`)
@@ -39,6 +40,7 @@ const event : BotEvent = {
             }
 
         } else if (interaction.isButton()) {
+            console.log('rot', interaction)
             try {
                 // console.log('interaction isButton', interaction)
                 let command = interaction.client.slashCommands

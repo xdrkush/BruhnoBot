@@ -3,29 +3,20 @@
 Bot for community HLand.
 
 # Pre-requis
-  - Node >=18
+  - Node V18
   - Npm
 
 # Install
-
 ```sh
-yarn | npm i
+yarn
 ```
 
-# Run Bot
-
+# Run
 ```sh
-yarn bot | npm run bot
-```
-
-# Run UI
-
-```sh
-yarn ui | npm run ui
+yarn dev
 ```
 
 # Build
-
 (in progress)
 
 Join discord:

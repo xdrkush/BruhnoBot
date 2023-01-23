@@ -1,9 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } from "discord.js"
-import { SlashCommand } from "../types";
-import { OpenAIClient } from "../client/OpenAI";
-const wait = require('node:timers/promises').setTimeout;
 
-const questions = [
+export const questions = [
     {
         id: 1, name: "Postman", category: "back", question: "À quoi sert l'outil postman ?", reponse: ""
     },
@@ -20,7 +16,7 @@ const questions = [
         id: 5, name: "Serveur", category: "system", question: "VPS vs Dedié ? Que veux dire VPS ?", response: ""
     },
     {
-        id: 6, name: "", category: "back", question: "Citez 1 librairie + 1 module", response: ""
+        id: 6, name: "Node", category: "back", question: "Citez 1 librairie + 1 module", response: ""
     },
     {
         id: 7, name: "Templating", category: "front", question: "Second layout / Helper", response: ""
@@ -149,7 +145,7 @@ const questions = [
         id: 48, name: "Client web", category: "front", question: "Sur quoi se base la session pour reconnaitre un client ?", response: ""
     },
     {
-        id: 49, name: "", category: "back", question: "Sync vs Async ?", response: ""
+        id: 49, name: "Javascript", category: "back", question: "Sync vs Async ?", response: ""
     },
     {
         id: 50, name: "CMS", category: "system", question: "C'est quoi un CMS et a quoi sert-il ?", response: ""
@@ -161,7 +157,7 @@ const questions = [
         id: 52, name: "JS", category: "back", question: "Depuis quel ECMAScript doit-on utilisé \"import\" au lieu de déclarer une variable pour les dépendances ?", response: ""
     },
     {
-        id: 53, name: "", category: "back", question: "Test unitaire VS Test d'implémentation", response: ""
+        id: 53, name: "Test", category: "back", question: "Test unitaire VS Test d'implémentation", response: ""
     },
     {
         id: 54, name: "CRUD", category: "back", question: "C'est quoi un CRUD ?", response: ""
@@ -239,7 +235,7 @@ const questions = [
         id: 78, name: "React", category: "front", question: "A quoi sert useState exactement ?", response: ""
     },
     {
-        id: 79, name: "", category: "back", question: "Quel est la différence entre une librairie et un module ?", response: ""
+        id: 79, name: "Web", category: "back", question: "Quel est la différence entre une librairie et un module ?", response: ""
     },
     {
         id: 80, name: "Express", category: "back", question: "Quel est la différence majeur entre REQ et RES ?", response: ""
@@ -260,95 +256,3 @@ const questions = [
         id: 85, name: "TP", category: "uml", question: "Cite 5 mot clef en rapport avec le TP7 (config back-end)", response: ""
     }
 ]
-
-const command: SlashCommand = {
-    command: new SlashCommandBuilder()
-        .setName("kuizz")
-        .setDescription("Evaluate your skills,")
-        .addStringOption(option =>
-            option.setName('category')
-                .setDescription('Category for this question,')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Random', value: 'random' },
-                    { name: 'Front', value: 'front' },
-                    { name: 'Back', value: 'back' },
-                    { name: 'System', value: 'system' },
-                    { name: 'Database', value: 'database' },
-                    { name: 'UML', value: 'uml' },
-                )),
-    execute: async interaction => {
-
-        if (!interaction.options.get("category"))
-            return await interaction.reply("🚫 Oops ! Une erreur est survenue")
-
-        let question: any, filterQuestions;
-        const val = interaction.options.get("category")?.value;
-
-        if (val === "random")
-            question = questions[Math.floor(Math.random() * questions.length)]
-        else {
-            filterQuestions = questions.filter(el => el.category === val)
-            question = filterQuestions[Math.floor(Math.random() * filterQuestions.length)]
-        }
-
-        const row: any = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId(`${question.id}-${interaction.user.id}`)
-                .setLabel("Tu donnes ta langue aux chattes ?")
-                .setStyle(ButtonStyle.Danger)
-        )
-
-        interaction.reply({
-            embeds: [
-                new EmbedBuilder()
-                    .setAuthor({ name: `📡 Category: ${question.category}` })
-                    .setDescription(`❓ __**Question**__: ${question.question}`)
-                    .setTimestamp()
-            ],
-            components: [
-                row
-            ]
-        })
-    },
-    async btn(interaction: any) {
-        // try {
-        const [customId, userId] = interaction.customId.split('-')
-        const [getQuestion]: any = questions.filter(el => el.id.toString() === customId)
-        const gptResponse = await new OpenAIClient().searchByString(getQuestion.question)
-
-        console.log('reponse button', gptResponse.data)
-
-        if (interaction.user.id === userId) {
-            await interaction.reply('wait ...')
-            // await interaction.deferReply()
-            
-            const message = new EmbedBuilder()
-                .setAuthor({ name: `${interaction.user.tag}` })
-                .setDescription(`❓ __**Réponse**__: ${gptResponse.data.choices[0].text?.toString()}`)
-                .setFooter({ text: "La réponse est généré par openAI." })
-                .setTimestamp();
-
-            // await wait(2000);
-            await interaction.editReply({
-                embeds: [
-                    message
-                ]
-            })
-        }
-        else await interaction.reply({
-            content: "Vous ne pouvez pas faire cette interaction !",
-            ephemeral: true
-        });
-
-        // } catch (error) {
-        //     interaction.reply({
-        //         content: "Une erreur est survenue !",
-        //         ephemeral: true
-        //     });
-        // }
-    },
-    cooldown: 10,
-}
-
-export default command

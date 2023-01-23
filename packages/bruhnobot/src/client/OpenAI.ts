@@ -20,7 +20,7 @@ export class OpenAIClient {
         return await this.client.createCompletion({
             model: "text-davinci-003",
             prompt: question,
-            max_tokens: 70,
+            max_tokens: 50,
             temperature: 0.3,
             top_p: 0.3,
             presence_penalty: 0,
