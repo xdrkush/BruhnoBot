@@ -5,11 +5,15 @@ export default function ModalConnexion({ show, handleClose, children }: any) {
 
     return (
         <div className={showHideClassName}>
-            <section className="modal-main">
-                {children}
-                <button type="button" onClick={handleClose}>
-                    Close
-                </button>
+            <section className="modal-main h-50">
+                <div className="nav flex-end">
+                    <button type="button" className="btn" onClick={handleClose}>
+                        X
+                    </button>
+                </div>
+                <div className="center">
+                    {children}
+                </div>
             </section>
         </div>
     );

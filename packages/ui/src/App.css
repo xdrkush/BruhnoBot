@@ -50,6 +50,10 @@ h1, h2, h3, h4, h5, h5, p, a {
   background-color: var(--greyligth-color);
   color: var(--highligth-color);
 }
+.nav {
+  width: 100%;
+  background-color: var(--greydark-color)
+}
 
 .App-logo {
   height: 40vmin;
@@ -90,13 +94,27 @@ h1, h2, h3, h4, h5, h5, p, a {
   width: 100%;
 }
 
+.h-50 {
+  min-height: 50vh
+}
+
 .container {
   width: 80%;
   margin: auto;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
 .flex {
   display: flex;
+}
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .row {

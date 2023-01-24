@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, CommandInteraction, Collection, PermissionResolvable,
 Message, AutocompleteInteraction, Channel } from "discord.js"
+import { OAuth2Namespace } from '@fastify/oauth2';
 
 declare global {
     namespace NodeJS {
@@ -11,6 +12,13 @@ declare global {
         }
     }
 }
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    discordOAuth2: OAuth2Namespace;
+  }
+}
+
 
 export interface BotEvent {
     name: string,
