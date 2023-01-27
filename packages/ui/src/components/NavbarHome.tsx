@@ -1,20 +1,37 @@
 import "./NavbarHome.css"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalConnexion from "./ModalConnexion";
 import axios from "axios";
 // import FormConnexion from "./FormConnexion";
 
 export default function NavbarHome() {
     const [modal, setModal] = useState(false)
+    const [session, setSession] = useState({})
+
+    useEffect(() => {
+        axios.get('http://localhost:6777/')
+            .then(function (res) {
+                console.log('res', res)
+                setSession(res)
+
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+                // setModal(false);    
+            });
+
+    }, [])
 
     const authDiscord = () => {
-        axios.get('http://localhost:6777/login')
+        axios.get('http://localhost:6777/login/discord')
             .then(function (res) {
-                if (res) {
-                    console.log('res', res)
-                } else {
-                    console.log('res err', res)
-                }
+                console.log('res', res)
+                window.open(res.data.endPoint, '_blank');
+
             })
             .catch(function (error) {
                 // handle error

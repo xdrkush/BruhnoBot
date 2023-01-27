@@ -1,5 +1,7 @@
-import { SlashCommandBuilder, CommandInteraction, Collection, PermissionResolvable,
-Message, AutocompleteInteraction, Channel } from "discord.js"
+import {
+    SlashCommandBuilder, CommandInteraction, Collection, PermissionResolvable,
+    Message, AutocompleteInteraction, Channel
+} from "discord.js"
 import { OAuth2Namespace } from '@fastify/oauth2';
 
 declare global {
@@ -14,9 +16,14 @@ declare global {
 }
 
 declare module 'fastify' {
-  interface FastifyInstance {
-    discordOAuth2: OAuth2Namespace;
-  }
+    interface FastifyInstance {
+        discordOAuth2: OAuth2Namespace;
+    }
+}
+declare module '@fastify/secure-session' {
+    interface SessionData {
+        foo: string;
+    }
 }
 
 

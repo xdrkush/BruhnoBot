@@ -41,7 +41,11 @@ export class ServerClient {
 
         // set up secure sessions for @fastify/passport to store data in
         this.server.register(fastifySecureSession, {
+            cookieName: 'BrunhoBot',
             key: fs.readFileSync(path.join(__dirname, 'secret-key')),
+            cookie: {
+                path: '/'
+            }
         })
 
         // initialize @fastify/passport and connect it to the secure-session storage. Note: both of these plugins are mandatory.
@@ -49,40 +53,45 @@ export class ServerClient {
         this.server.register(fastifyPassport.secureSession())
 
         this.server.register(oauthPlugin, {
-            name: 'discordOauth2',
+            name: 'discordOAuth2',
             scope: ["identify"],
             credentials: {
                 client: {
                     id: process.env.CLIENT_ID,
                     secret: process.env.CLIENT_SECRET
                 },
-                auth: {
-                    authorizeHost: 'https://discord.com',
-                    authorizePath: '/oauth2/authorize',
-                    tokenHost: 'https://discord.com',
-                    tokenPath: '/api/oauth2/token'
-                }
-
+                auth: oauthPlugin.DISCORD_CONFIGURATION
             },
-            startRedirectPath: '/login',
-            callbackUri: `http://localhost:6777/login/discord/callback`,
-            callbackUriParams: {
-                test: "test"
-            }
+            startRedirectPath: '/discord',
+            callbackUri: `http://localhost:6777/login/discord/callback`
         })
 
-        this.server.get('/login/discord/callback', function (request, reply) {
+        this.server.get('/login/discord/callback', async function (request, reply) {
             console.log('ICICIICI', request)
-            // const token = await this.discordOAuth2.getAccessTokenFromAuthorizationCodeFlow(request)
+            const token = await this.discordOAuth2.getAccessTokenFromAuthorizationCodeFlow(request)
 
-            // console.log(token)
+            console.log(request.session)
 
             // you should store the `token` for further usage
             // await saveAccessToken(token)
 
-            reply.send({ access_token: 'token' })
+            reply.redirect('http://localhost:3000')
         })
 
+        this.server.get('/login/discord', async function (request, reply) {
+            const authorizationEndpoint = this.discordOAuth2.generateAuthorizationUri(request);
+            console.log(authorizationEndpoint)
+
+            reply.send({ endPoint: authorizationEndpoint })
+
+            // reply.redirect('/discord')
+        })
+
+        this.server.get('/', async function (request, reply) {
+            const session = request.session
+            console.log(session)
+            reply.send({ session })
+        })
 
     }
 
