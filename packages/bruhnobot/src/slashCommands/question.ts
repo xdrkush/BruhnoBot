@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRo
 import { SlashCommand } from "../types";
 import { Question, IQuestion } from "../client/MongoDB";
 
-const arrEmojiNumber = ['1️⃣','2️⃣', '3️⃣', '4️⃣','5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+const arrEmojiNumber = ['⏪', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '⏩']
 
 const command: SlashCommand = {
     command: new SlashCommandBuilder()
@@ -60,20 +60,6 @@ const command: SlashCommand = {
 
                 // console.log('pagination', questions.length, nbrPages, page)
 
-                // await interaction.deferReply()
-
-                const row: any = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId(`prev-${pageN - 1}`)
-                            .setLabel("previous")
-                            .setStyle(ButtonStyle.Primary)
-                    ).addComponents(
-                        new ButtonBuilder()
-                            .setCustomId(`next-${pageN + 1}`)
-                            .setLabel("next")
-                            .setStyle(ButtonStyle.Primary)
-                    )
 
                 const message = await interaction.reply({
                     embeds: [
@@ -81,79 +67,118 @@ const command: SlashCommand = {
                             .setAuthor({ name: `${interaction.user.tag}` })
                             // .setDescription(` ${question.name} - ${question.id}`)
                             .setDescription(`Page: **${pageN.toString()}** / **${nbrPages}** | Total: **${questions.length}** ${page.map((el, i) => {
-                                return `\n ${ arrEmojiNumber[i] } - ${el.question.slice(0, 40)} : **${el.id}**`
+                                return `\n ${arrEmojiNumber[i + 1]} - ${el.question.slice(0, 40)} : **${el.id}**`
                             })}`)
                             .setTimestamp()
                     ],
-                    components: [
-                        row
-                    ],
                     fetchReply: true
                 })
+                console.log('message', message)
 
-                arrEmojiNumber.forEach(el => message.react(el))
-                // message.react('1️⃣');
-                // message.react('2️⃣');
-                // message.react('3️⃣');
-                // message.react('4️⃣');
-                // message.react('5️⃣');
-                // message.react('6️⃣');
-                // message.react('7️⃣');
-                // message.react('8️⃣');
-                // message.react('9️⃣');
-                // message.react('🔟');
+                message.channel.messages.fetch(message.id)
+                    .then((msg) => {
+                        msg.react('👍')
+                        const filter = (reaction: any, user: any) => {
+                            return true;
+                        };
 
-                break;
-            case 'create':
-                await Question.create({ action, category, name, question })
+                        message.awaitReactions({filter, time: 60000})
+                            .then((collected) => {
+                                console.log("collected",collected)
+                                const reaction = collected.first();
 
-                interaction.reply("Votre question à été crée avec succès !")
-                break;
+                                if (reaction?.emoji.name === '👍') {
+                                    console.log(`${reaction?.count} personnes ont réagi avec 👍.`);
+                                } else {
+                                    console.log(`${reaction?.count} personnes ont réagi avec 👎.`);
+                                }
+                            })
+                            .catch(console.error);
+                    })
+                    .catch(console.error);
 
-            case 'edit':
 
-                interaction.reply("Votre question à été édité avec succès !")
-                break;
 
-            case 'delete':
 
-                interaction.reply("Votre question à été delete avec succès !")
-                break;
 
-            default:
-                interaction.reply("Une erreur de commande à été omise !")
-                break;
+            // // message.react('1️⃣');
+            // message.react('👍')
+            //     .then(() => message.react('👎'))
+            //     .then(() => {
+            //         const filter = (reaction: any, user: any) => {
+            //             return reaction.emoji.name === '👍' && user.id === message.author.id;
+            //         };
+
+            //         message.awaitReactions({ filter, max: 4, time: 60000, errors: ['time'] })
+            //             .then(collected => console.log(collected.size))
+            //             .catch(collected => {
+            //                 console.log(`After a minute, only ${collected.size} out of 4 reacted.`);
+            //             });
+            //     });
+
+
+            // const filter = (reaction: any, user: any) => {
+            //     return reaction.emoji.name === '👍' && user.id === message.author.id;
+            // };
+
+            // message.awaitReactions({ filter, max: 4, time: 60000, errors: ['time'] })
+            //     .then(collected => console.log(collected.size))
+            //     .catch(collected => {
+            //         console.log(`After a minute, only ${collected.size} out of 4 reacted.`);
+            //     });
+
+            // const message = await interaction.fetchReply();
+            // console.log("message", message);
         }
 
     },
 
     async btn(interaction: any) {
-        console.log('interaction', interaction.type)
+        console.log('interaction', interaction.type, interaction)
+
         const questions = await Question.find();
+
         // try {
-        const [action, pageN] = interaction.customId.split('-')
+        const [commandName, action, pageN, idMessageParent] = interaction.customId.split('-')
         const tmpArray = [...questions]
-        console.log('btn', Number(pageN))
+        // const message = await interaction.fetchReply()
+        console.log('btn', action, Number(pageN), commandName)
         const nbrParPage = 10 // nbr item par page
         const nbrPages = (tmpArray.length - 1) / nbrParPage // nbr de page au total
         // const pageN = 1 // le numero de la page que je veux
         const page = tmpArray
             .slice((Number(pageN) * nbrParPage) - nbrParPage, Number(pageN) * nbrParPage) // la page que l'on veux rendre (de l'item N à N)
 
-        await interaction.deferReply()
 
-        const row: any = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`prev-${Number(pageN) - 1}`)
-                    .setLabel("previous")
-                    .setStyle(ButtonStyle.Primary)
-            ).addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`next-${Number(pageN) + 1}`)
-                    .setLabel("next")
-                    .setStyle(ButtonStyle.Secondary)
-            )
+        interaction.message.fetch(interaction.message.id)
+            .then((msg: any) => {
+                console.log('msg', msg)
+                const receivedEmbed = msg.embeds[0];
+                const embed = EmbedBuilder.from(receivedEmbed)
+                    .setAuthor({ name: `${interaction.user.tag}` })
+                    // .setDescription(` ${question.name} - ${question.id}`)
+                    .setDescription(`Page: **${pageN.toString()}** / **${nbrPages}** | Total: **${questions.length}** ${page.map((el, i) => {
+                        return `\n ${arrEmojiNumber[i]} - ${el.question.slice(0, 40)} : **${el.id}**`
+                    })}`)
+
+                msg.edit({ embeds: [embed] })
+                    .catch(console.error);
+            })
+            .catch(console.error);
+        // await interaction.deferReply()
+
+        // const row: any = new ActionRowBuilder()
+        //     .addComponents(
+        //         new ButtonBuilder()
+        //             .setCustomId(`question-prev-${Number(pageN) - 1}-${interaction.message.id}`)
+        //             .setLabel("previous")
+        //             .setStyle(ButtonStyle.Primary)
+        //     ).addComponents(
+        //         new ButtonBuilder()
+        //             .setCustomId(`question-next-${Number(pageN) + 1}-${interaction.message.id}`)
+        //             .setLabel("next")
+        //             .setStyle(ButtonStyle.Primary)
+        //     )
 
         // ré_intégrer le intéraction commands dans la commande button 
         // Pour qu'il soit détecter dans le event interaction button 
@@ -162,21 +187,23 @@ const command: SlashCommand = {
 
         // interaction = { ...interaction, message: { ...interaction.message, interaction: { ...interaction.message.interaction }}}
 
-        await interaction.followUp({
-            embeds: [
-                new EmbedBuilder()
-                    .setAuthor({ name: `${interaction.user.tag}` })
-                    // .setDescription(` ${question.name} - ${question.id}`)
-                    .setDescription(`Page: ${pageN.toString()} de ${((pageN * nbrParPage) - nbrParPage) + 1} / ${pageN * nbrParPage} ${page.map(el => {
-                        return `\n- ${el.question.slice(0, 40)} : **${el.id}**`
-                    })}`)
-                    .setTimestamp()
-            ],
-            components: [
-                row
-            ],
-            ephemeral: true
-        })
+
+        // await interaction.followUp({
+        //     embeds: [
+        // new EmbedBuilder()
+        // .setAuthor({ name: `${interaction.user.tag}` })
+        // // .setDescription(` ${question.name} - ${question.id}`)
+        // .setDescription(`Page: **${pageN.toString()}** / **${nbrPages}** | Total: **${questions.length}** ${page.map((el, i) => {
+        //     return `\n ${arrEmojiNumber[i]} - ${el.question.slice(0, 40)} : **${el.id}**`
+        // })}`)
+        // .setTimestamp()
+        //     .setTimestamp()
+        //     ],
+        //     components: [
+        //         row
+        //     ],
+        //     ephemeral: true
+        // })
 
         // } catch (error) {
         //     interaction.reply({

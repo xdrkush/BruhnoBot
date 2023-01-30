@@ -3,7 +3,7 @@
 import { Interaction } from "discord.js";
 import { BotEvent } from "../types";
 
-const event : BotEvent = {
+const event: BotEvent = {
     name: "interactionCreate",
     execute: async (interaction: Interaction) => {
         console.log('rooot', interaction.type)
@@ -33,29 +33,33 @@ const event : BotEvent = {
                 return;
             }
             try {
-                if(!command.autocomplete) return;
+                if (!command.autocomplete) return;
                 command.autocomplete(interaction);
             } catch (error) {
                 console.error(error);
             }
 
         } else if (interaction.isButton()) {
-            console.log('rot', interaction)
+            // console.log('root', interaction)
             try {
                 // console.log('interaction isButton', interaction)
+                const [commandName, action, nbr, id] = interaction.customId.split('-')
+
                 let command = interaction.client.slashCommands
-                    .get(`${interaction.message.interaction?.commandName}`);
-                    
+                    .get(`${interaction.message.interaction?.commandName || commandName}`);
+
                 if (!command) return;
                 await command.btn(interaction);
-            
-              } catch (e) {
+
+
+
+            } catch (e) {
                 console.error(e);
                 interaction.followUp({
-                  content: e.message,
-                  ephemeral: true
+                    content: e.message,
+                    ephemeral: true
                 });
-              }
+            }
         }
     }
 }

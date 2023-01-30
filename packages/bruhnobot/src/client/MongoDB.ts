@@ -35,12 +35,16 @@ export const Question = model<IQuestion>('Question', questionSchema);
 export class MongoDB {
 
     async test() {
+        // Clear Collection
+        // Question.collection.drop()
+
         // const user = new User({
         //     name: 'Bill',
         //     email: 'bill@initech.com',
         //     avatar: 'https://i.imgur.com/dM7Thhn.png'
         // });
         // await user.save();
+
 
         // questions.map(async (el, i) => {
         //     await Question.create({
