@@ -51,7 +51,23 @@ const event: BotEvent = {
                 if (!command) return;
                 await command.btn(interaction);
 
+            } catch (e) {
+                console.error(e);
+                interaction.followUp({
+                    content: e.message,
+                    ephemeral: true
+                });
+            }
+        } else if (interaction.isModalSubmit()) {
+            try {
+                // console.log('interaction isButton', interaction)
+                const [commandName] = interaction.customId.split('-')
 
+                let command = interaction.client.slashCommands
+                    .get(`${commandName}`);
+
+                if (!command) return;
+                await command.modal(interaction);
 
             } catch (e) {
                 console.error(e);

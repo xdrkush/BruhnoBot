@@ -38,7 +38,8 @@ export interface SlashCommand {
     execute: (interaction: CommandInteraction) => void,
     autocomplete?: (interaction: AutocompleteInteraction) => void,
     cooldown?: number, // in seconds
-    btn?: any
+    btn?: any,
+    modal?: any
 }
 
 export interface Command {

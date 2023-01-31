@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Collection, PermissionFlagsBits, TextChannel } from "discord.js";
-const { Guilds, MessageContent, GuildMessages, GuildMembers } = GatewayIntentBits
+const { Guilds, MessageContent, GuildMessages, GuildMembers, GuildMessageReactions } = GatewayIntentBits
 
 import { Command, SlashCommand } from "../types";
 import { readdirSync } from "fs";
@@ -9,7 +9,7 @@ export class DiscordClient {
     client: Client
 
     constructor() {
-        this.client = new Client({ intents: [Guilds, MessageContent, GuildMessages, GuildMembers] })
+        this.client = new Client({ intents: [Guilds, MessageContent, GuildMessages, GuildMembers, GuildMessageReactions] })
     }
 
     initConfig() {

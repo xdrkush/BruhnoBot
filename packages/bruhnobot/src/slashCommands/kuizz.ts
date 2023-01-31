@@ -280,10 +280,10 @@ const command: SlashCommand = {
                 )),
     execute: async interaction => {
         const questions = await Question.find()
-        
+
         if (!interaction.options.get("category"))
             return await interaction.reply("🚫 Oops ! Une erreur est survenue")
-        
+
         await interaction.deferReply()
 
         let question: any, filterQuestions;
@@ -298,7 +298,7 @@ const command: SlashCommand = {
 
         const row: any = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId(`${question._id}-${interaction.user.id}`)
+                .setCustomId(`kuizz-${question._id}-${interaction.user.id}`)
                 .setLabel("Tu donnes ta langue aux chattes ?")
                 .setStyle(ButtonStyle.Danger)
         )
@@ -317,30 +317,50 @@ const command: SlashCommand = {
         })
     },
     async btn(interaction: any) {
+        await interaction.deferReply()
+
         const questions = await Question.find();
         // try {
-        const [customId, userId] = interaction.customId.split('-')
-        const [getQuestion]: any = questions.filter(el => el._id.toString() === customId)
-        const gptResponse = await new OpenAIClient().searchByString(getQuestion.question)
+        const [commandName, customId, userId] = interaction.customId.split('-')
+        const getQuestion = await Question.findById(customId)
+        console.log('getQuestion', getQuestion)
 
-        console.log('reponse button', gptResponse.data)
-        
-        if (interaction.user.id === userId) {
-            await interaction.deferReply()
-            
+        if (!getQuestion) return await interaction.editReply({
+            content: "Une erreur dans la recherche de la question !",
+            ephemeral: true
+        })
+        else if (interaction.user.id === userId && getQuestion.reponse.length >= 5) {
+
             const message = new EmbedBuilder()
                 .setAuthor({ name: `${interaction.user.tag}` })
-                .setDescription(`❓ __**Réponse**__: ${gptResponse.data.choices[0].text?.toString()}`)
+                .setDescription(`❓ __**Réponse**__: ${getQuestion.reponse}`)
+                .setFooter({ text: "La réponse est en DB." })
+                .setTimestamp();
+
+            await interaction.editReply({
+                embeds: [
+                    message
+                ]
+            })
+
+        } else if (interaction.user.id === userId) {
+            const gptResponse = await new OpenAIClient().searchByString(getQuestion.question)
+
+            const message = new EmbedBuilder()
+                .setAuthor({ name: `${interaction.user.tag}` })
+                .setDescription(`❓ __**Question**__: ${getQuestion.question} \n❓ __**Réponse**__: ${gptResponse.data.choices[0].text?.toString()}`)
                 .setFooter({ text: "La réponse est généré par openAI." })
                 .setTimestamp();
 
-            await interaction.followUp({
+            await Question.findByIdAndUpdate(customId, { reponse: gptResponse.data.choices[0].text?.toString() })
+
+            await interaction.editReply({
                 embeds: [
                     message
                 ]
             })
         }
-        else await interaction.reply({
+        else await interaction.editReply({
             content: "Vous ne pouvez pas faire cette interaction !",
             ephemeral: true
         });

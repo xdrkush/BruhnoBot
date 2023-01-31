@@ -12,14 +12,15 @@ const command: SlashCommand = {
                 .setDescription('Votre question pour chat GPT.')), // warn with "," at end
 
     execute: async interaction => {
-        if (!interaction.options.get("input"))
-            return await interaction.reply("🚫 Oops !")
+        if (!interaction.options.get("input")) return await interaction.reply("🚫 Oops !")
+        
+        await interaction.deferReply()
 
         const question = `${interaction.options.get("input")?.value}`
         const gptResponse = await new OpenAIClient().searchByString(question)
         console.log('chatgpt', interaction, gptResponse)
 
-        await interaction.reply({
+        await interaction.editReply({
             embeds: [
                 new EmbedBuilder()
                     .setAuthor({ name: "Chat GPT:" })
