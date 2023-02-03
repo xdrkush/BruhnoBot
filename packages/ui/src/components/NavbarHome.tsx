@@ -7,11 +7,15 @@ import axios from "axios";
 export default function NavbarHome() {
     const [modal, setModal] = useState(false)
     const [session, setSession] = useState({})
+    const cookie = localStorage.getItem('Brunho');
+
+    console.log('Navbar', cookie)
 
     useEffect(() => {
         axios.get('http://localhost:6777/')
             .then(function (res) {
                 console.log('res', res)
+
                 setSession(res)
 
             })

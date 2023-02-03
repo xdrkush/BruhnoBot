@@ -1,5 +1,6 @@
 import Fastify, { FastifyInstance } from 'fastify'
 import { Client } from 'discord.js';
+import cookie from '@fastify/cookie';
 import fastifyPassport from '@fastify/passport'
 import fastifySecureSession from '@fastify/secure-session'
 const oauthPlugin = require('@fastify/oauth2')
@@ -26,7 +27,8 @@ export class ServerClient {
             return (req: any, callback: any) => {
                 const corsOptions = {
                     // This is NOT recommended for production as it enables reflection exploits
-                    origin: true
+                    origin: true,
+                    credentials: true
                 };
 
                 // do not include CORS headers for requests from localhost
@@ -38,6 +40,8 @@ export class ServerClient {
                 callback(null, corsOptions)
             }
         })
+
+        this.server.register(cookie);
 
         // set up secure sessions for @fastify/passport to store data in
         this.server.register(fastifySecureSession, {
@@ -67,7 +71,7 @@ export class ServerClient {
         })
 
         this.server.get('/login/discord/callback', async function (request, reply) {
-            console.log('ICICIICI', request)
+            console.log('ICICIICI', request.session.get('data'))
             const token = await this.discordOAuth2.getAccessTokenFromAuthorizationCodeFlow(request)
 
             console.log(request.session)
@@ -88,8 +92,9 @@ export class ServerClient {
         })
 
         this.server.get('/', async function (request, reply) {
+            request.session.set('data', { test: "fzegfzezgs" })
             const session = request.session
-            console.log(session)
+            console.log('HOME', session)
             reply.send({ session })
         })
 

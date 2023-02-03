@@ -5,6 +5,8 @@ import { OpenAIClient } from "../client/OpenAI";
 
 const arrEmojiNumber = ['⏪', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '⏩']
 
+// Quand je delete il ne remet pas le embed de la commande précédente à jour
+
 const command: SlashCommand = {
     command: new SlashCommandBuilder()
         .setName("question")
@@ -16,7 +18,7 @@ const command: SlashCommand = {
         let tmpArray = [...await Question.find()]
         let pageN = 1 // le numero de la page que je veux
         const nbrParPage = 10 // nbr item par page
-        const nbrPages = (tmpArray.length - 1) / nbrParPage // nbr de page au total
+        const nbrPages = Math.floor((tmpArray.length - 1) / nbrParPage) + 1 // nbr de page au total
         let page = tmpArray.slice((pageN * nbrParPage) - nbrParPage, pageN * nbrParPage) // la page que l'on veux rendre (de l'item N à N)
 
         // page-1 = 0 - 19
@@ -62,6 +64,7 @@ const command: SlashCommand = {
             // await interaction.followUp(`${reaction.emoji.name} from ${user.tag}`)
 
             if (reaction?.emoji.name === "⏪") {
+                if (pageN === 1) return;
                 pageN--
                 tmpArray = [...await Question.find()]
                 page = tmpArray.slice((pageN * nbrParPage) - nbrParPage, pageN * nbrParPage)
@@ -80,6 +83,7 @@ const command: SlashCommand = {
                 message.edit({ embeds: [embed] })
                     .catch(console.error);
             } else if (reaction?.emoji.name === "⏩") {
+                if (pageN === nbrPages) return;
                 pageN++
                 tmpArray = [...await Question.find()]
                 page = tmpArray.slice((pageN * nbrParPage) - nbrParPage, pageN * nbrParPage)
@@ -103,7 +107,7 @@ const command: SlashCommand = {
                         const quest = await Question.findById(page[i - 1]._id)
                         console.log('icon', icon, i, quest)
 
-                        if (!quest) return await interaction.reply({
+                        if (!quest || quest === null) return await interaction.followUp({
                             content: "Aucune question à été trouver !",
                             ephemeral: true
                         });
@@ -271,9 +275,9 @@ const command: SlashCommand = {
                 .setTitle('Modal Delete');
 
             const questionInput = new TextInputBuilder()
-                .setCustomId('question-edit-questionInput')
+                .setCustomId('question-questionInput')
                 .setLabel("Définir une question,")
-                .setValue(question.question)
+                .setValue(question.question || "")
                 // Paragraph means multiple lines of text.
                 .setStyle(TextInputStyle.Paragraph);
 
@@ -306,7 +310,7 @@ const command: SlashCommand = {
             const collector = messageG.createReactionCollector({ filter, time: 5 * 60 * 1000 });
 
             collector.on('collect', async (reaction: any, user: any) => {
-                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);0
+                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`); 0
                 if (reaction?.emoji.name === "✅") {
                     await Question.findByIdAndUpdate(idQuestion, { reponse: gptResponse.data.choices[0].text })
                 }
@@ -325,17 +329,16 @@ const command: SlashCommand = {
         const question = await Question.findById(idQuestion)
         console.log('modal', interaction.type)
 
-        const input = {
-            name: interaction?.fields.fields.get('question-nameInput').value,
-            category: interaction?.fields.fields.get('question-categoryInput').value,
-            question: interaction?.fields.fields.get('question-questionInput').value,
-            reponse: interaction?.fields.fields.get('question-reponseInput').value
-        }
-
         if (action === "create") {
+            const input = {
+                name: interaction?.fields.fields.get('question-nameInput').value,
+                category: interaction?.fields.fields.get('question-categoryInput').value,
+                question: interaction?.fields.fields.get('question-questionInput').value,
+                reponse: interaction?.fields.fields.get('question-reponseInput').value
+            }
 
             const quest = await Question.create({ ...input })
-            console.log('submit modal create question', quest)
+            // console.log('submit modal create question', quest)
             await interaction.reply({
                 content: quest.question + "\nà bien été créer !",
                 ephemeral: true
@@ -347,9 +350,15 @@ const command: SlashCommand = {
         })
 
         else if (action === "edit") {
+            const input = {
+                name: interaction?.fields.fields.get('question-nameInput').value,
+                category: interaction?.fields.fields.get('question-categoryInput').value,
+                question: interaction?.fields.fields.get('question-questionInput').value,
+                reponse: interaction?.fields.fields.get('question-reponseInput').value
+            }
 
             await Question.findByIdAndUpdate(idQuestion, { ...input })
-            console.log('submit modal edit question')
+            // console.log('submit modal edit question')
             await interaction.reply({
                 content: question.question + "\nà bien été éditer !",
                 ephemeral: true
@@ -357,12 +366,18 @@ const command: SlashCommand = {
 
         } else if (action === "delete") {
 
+            console.log('delete', idQuestion, question)
+
             await Question.findByIdAndRemove({ _id: idQuestion })
             console.log('submit modal delete question')
             await interaction.reply({
-                content: question.question + "\nà bien été supprimer !",
+                content: question.question + "\nà bien été Supprimer !",
                 ephemeral: true
             });
+            // await interaction.reply({
+            //     content: question.question + "\nà bien été supprimer !",
+            //     ephemeral: true
+            // });
 
         }
     },
