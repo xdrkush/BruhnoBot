@@ -18,7 +18,6 @@ const command: SlashCommand = {
 
         const question = `${interaction.options.get("input")?.value}`
         const gptResponse = await new OpenAIClient().searchByString(question)
-        console.log('chatgpt', interaction, gptResponse)
 
         await interaction.editReply({
             embeds: [

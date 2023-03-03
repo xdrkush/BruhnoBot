@@ -1,8 +1,8 @@
 // Client
 import { DiscordClient } from './client/Discord';
 import { TwitchClient } from './client/Twitch';
-import { MongoDB } from './client/MongoDB';
-import { ServerClient } from './client/Server';
+// import { MongoDB } from './client/MongoDB';
+// import { ServerClient } from './client/Server';
 
 // Config
 import { config } from "dotenv"
@@ -19,10 +19,10 @@ export const Twitch_Cli = new TwitchClient()
 Twitch_Cli.initConfig()
 Twitch_Cli.run()
 
-const Mongo_Cli = new MongoDB()
-Mongo_Cli.run()
+// const Mongo_Cli = new MongoDB()
+// Mongo_Cli.run()
 // Mongo_Cli.test() // inject data
 
-export const Server_Cli = new ServerClient(Discord_Cli.client)
-Server_Cli.initConfig()
-Server_Cli.run()
+// export const Server_Cli = new ServerClient(Discord_Cli.client)
+// Server_Cli.initConfig()
+// Server_Cli.run()

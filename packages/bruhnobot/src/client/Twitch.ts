@@ -14,11 +14,11 @@ export class TwitchClient {
                 reconnect: true
             },
             identity: {
-                username: "hsukrd",
+                username: `${process.env.TWITCH_NAME_CHANNEL}`,
                 password: `${process.env.TWITCH_TOKEN_CHANNEL}`
             },
             channels: [
-                "hsukrd"
+                "xdrkush"
             ]
         });
     }

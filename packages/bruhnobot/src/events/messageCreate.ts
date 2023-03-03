@@ -10,7 +10,7 @@ const event: BotEvent = {
         
         // Instance Twitch
         if (message.channelId === process.env.DISCORD_CHANNEL)
-            Twitch_Cli.client.say("hsukrd", `${message.author.username} > ${message.content}`)
+            Twitch_Cli.client.say(`${process.env.TWITCH_NAME_CHANNEL}`, `${message.author.username} > ${message.content}`)
 
         if (!message.member || message.member.user.bot) return;
         if (!message.guild) return;
